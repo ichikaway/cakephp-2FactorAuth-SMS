@@ -11,6 +11,46 @@ class UsersController extends AppController {
 
 	public function login() {
 		if ($this->request->is('post')) {
+
+			//-------- 2 Facter Auth --------------
+			$user = $this->Auth->identify($this->request, $this->response);
+			if(empty($user['id'])) {
+				$this->Session->setFlash(__('Invalid username or password, try again'));
+				return;
+			}
+
+			if(empty($this->request->data('User.sms_token'))) {
+
+				$account_sid = Configure::read('account_sid');
+				$auth_token  = Configure::read('auth_token');
+				$from_number = Configure::read('from_number');
+
+				$rand = mt_rand();
+				$token = substr($rand, 1, 4);
+
+				$this->Session->write('sms_token', $token);
+
+				//sending sms
+				App::import('Vendor', '/Twilio/Services/Twilio');
+				$client = new Services_Twilio($account_sid, $auth_token);
+				$message = $client->account->messages->sendMessage(
+						$from_number,
+						$user['tel'],
+						"sms_token: " . $token
+						);
+
+				return $this->render('login_sms');
+			}
+
+
+			$sms_token = $this->Session->read('sms_token');
+			if(empty($sms_token) || $sms_token != $this->request->data('User.sms_token')) {
+				$this->Session->setFlash(__('Invalid SMS token, try again'));
+				return ;
+			}
+			$this->Session->delete('sms_token');
+			//-------- 2 Facter Auth --------------
+
 			if ($this->Auth->login()) {
 				return $this->redirect($this->Auth->redirect());
 			}
