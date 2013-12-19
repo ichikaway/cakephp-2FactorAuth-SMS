@@ -376,3 +376,7 @@ Cache::config('_cake_model_', array(
 	'serialize' => ($engine === 'File'),
 	'duration' => $duration
 ));
+
+Configure::write('account_sid', 'xxxxxxxxxxxxxxx');
+Configure::write('auth_token', 'xxxxxxxxxxxxxxx');
+Configure::write('from_number', 'xxxxxxxxxxxxxxx');
