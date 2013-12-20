@@ -43,6 +43,8 @@ $cakeDescription = __d('cake_dev', 'CakePHP: the rapid development php framework
 		</div>
 		<div id="content">
 	<a href="/users/logout">Logout</a>
+	<br/>
+	<a href="/posts/">posts</a>
 
 			<?php echo $this->Session->flash(); ?>
 
