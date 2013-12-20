@@ -12,7 +12,7 @@ class UsersController extends AppController {
 	public function login() {
 		if ($this->request->is('post')) {
 
-			//-------- 2 Facter Auth --------------
+			//-------- 2 Factor Auth --------------
 			$user = $this->Auth->identify($this->request, $this->response);
 			if(empty($user['id'])) {
 				$this->Session->setFlash(__('Invalid username or password, try again'));
@@ -38,20 +38,21 @@ class UsersController extends AppController {
 						$user['tel'],
 						"sms_token: " . $token
 						);
-
 				return $this->render('login_sms');
 			}
 
 
 			$sms_token = $this->Session->read('sms_token');
+			$this->Session->delete('sms_token');
 			if(empty($sms_token) || $sms_token != $this->request->data('User.sms_token')) {
+				unset($this->request->data);
 				$this->Session->setFlash(__('Invalid SMS token, try again'));
 				return ;
 			}
-			$this->Session->delete('sms_token');
-			//-------- 2 Facter Auth --------------
+			//-------- 2 Factor Auth --------------
 
 			if ($this->Auth->login()) {
+				$this->Session->setFlash(__('Passed 2 Factor Auth. Logged in.'));
 				return $this->redirect($this->Auth->redirect());
 			}
 			$this->Session->setFlash(__('Invalid username or password, try again'));
